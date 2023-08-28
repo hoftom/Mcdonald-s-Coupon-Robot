@@ -2,7 +2,7 @@ from PyQt6 import QtCore, QtGui, QtWidgets
 import main_backend
 
 
-class UiForm(object):
+class MainForm(object):
     def setup_ui(self, Form):
         Form.setObjectName("Form")
         Form.resize(335, 297)
@@ -53,18 +53,17 @@ class UiForm(object):
         self.comboBox.setItemText(0, _translate("Form", "Drive"))
         self.comboBox.setItemText(1, _translate("Form", "Lobby"))
 
+
     def button_clicked(self):
         Form.hide()
         main_backend.run_program(self.comboBox.currentText(), self.spinBox.value())
         Form.show()
 
-
-
 if __name__ == "__main__":
     import sys
     app = QtWidgets.QApplication(sys.argv)
     Form = QtWidgets.QWidget()
-    ui = UiForm()
+    ui = MainForm()
     ui.setup_ui(Form)
     Form.show()
     sys.exit(app.exec())

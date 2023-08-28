@@ -1,174 +1,32 @@
-from selenium import webdriver
-from selenium.common import ElementClickInterceptedException
-from selenium.webdriver import Keys, ActionChains
-from selenium.webdriver.common.by import By
-import time, random
+import sys
+from PyQt6.QtWidgets import QApplication, QMainWindow, QPushButton, QWidget, QLabel
 
 
-def __select_and_click(xpath, driver):
-    scroll_distance = 400
-    button = driver.find_element(By.XPATH, xpath)
-    button.click()
-    driver.execute_script(f"window.scrollBy(0, {scroll_distance});")
+class MainWindow(QMainWindow):
+    def __init__(self):
+        super().__init__()
+        self.setWindowTitle("Main Window")
 
-def __write_into_textfield(xpath, driver, string):
-    textfield = driver.find_element(By.XPATH, xpath)
-    textfield.send_keys(string)
+        self.button = QPushButton("Open Second Window", self)
+        self.button.clicked.connect(self.open_second_window)
 
-def __normalize_code(string):
-    result = '-'.join([string[i:i + 4] for i in range(0, len(string), 4)]).upper()
-    if result[-1] == "-" or result[-2] == "-":
-        result = result[:-2]
-    return result
+    def open_second_window(self):
+        self.second_window = SecondWindow()
+        self.second_window.show()
 
 
-def __select_options(selected_type):
-    if selected_type == "Drive":
-        with open('data/drive_codes.txt', 'r') as file:
-            load_data = file.readlines()
-    else:
-        with open('data/lobby_codes.txt', 'r') as file:
-            load_data = file.readlines()
-    print("Sikeres adatbetöltés, kiválasztott típus: " + selected_type)
-    return load_data
+class SecondWindow(QWidget):
+    def __init__(self):
+        super().__init__()
+        self.setWindowTitle("Second Window")
+
+        self.label = QLabel("This is the second window.", self)
 
 
-def __delete_codeline(selected_list):
-    with open('data/drive_codes.txt', 'w') as file:
-        for index, w_row in enumerate(selected_list):
-            if index != len(selected_list) - 1:
-                file.writelines(selected_list[index + 1])
+if __name__ == "__main__":
+    app = QApplication(sys.argv)
 
+    main_window = MainWindow()
+    main_window.show()
 
-def run_program(selected_type, asked_amount):
-    selected_list = __select_options(selected_type)
-    successful_upload_number = 0
-    print(f"Megadott programlefutási érték: {asked_amount}")
-
-
-    for row in selected_list:
-        if successful_upload_number != asked_amount:
-            if row != "\n":
-
-                # Open browser and Get webpage
-                webpage = "https://mcdonalds.fast-insight.com/voc/hu/hu"
-                driver = webdriver.Chrome()
-                driver.get(webpage)
-                initial_page_source = driver.page_source
-                driver.maximize_window()
-
-                # Select Delivery FALSE
-                radio_delivery_xpath = '//*[@id="delivery_mo"]'
-                __select_and_click(radio_delivery_xpath, driver)
-
-                # Enter code
-                code = __normalize_code(row)
-                code_xpath = '//*[@id="receiptCode"]'
-                __write_into_textfield(code_xpath, driver, code)
-
-                print(f"Aktuális kód: {code}")
-
-                # Click to continue
-                button_xpath = '//*[@id="welcomeMessage"]/div[5]/button'
-                __select_and_click(button_xpath, driver)
-
-                time.sleep(5)
-                updated_page_source = driver.page_source
-
-                if initial_page_source == updated_page_source:
-                    __delete_codeline(selected_list)
-                    selected_list = __select_options(selected_type)
-                else:
-                    # Select the best rating
-                    # A legutóbbi látogatásod alapján összességében mennyire voltál elégedett?
-                    radio_first_xpath = '//*[@id="0"]/div[5]/div[1]/div[2]/span'
-                    __select_and_click(radio_first_xpath, driver)
-
-                    # Mennyire voltál elégedett a tisztasággal?
-                    radio_second_xpath = '//*[@id="6"]/div[5]/div[1]/div[2]/span'
-                    __select_and_click(radio_second_xpath, driver)
-
-                    # Kollégáinkat mennyire találtad barátságosnak?
-
-                    code_xpath = '//*[@id="receiptCode"]'
-                    radio_third_xpath = '//*[@id="8"]/div[5]/div[1]/div[2]/span'
-                    __select_and_click(radio_third_xpath, driver)
-
-                    # Pontosan kaptad meg a rendelésedet?
-                    radio_fourth_xpath = '//*[@id="10"]/div[5]/div[1]/div[2]/span'
-                    __select_and_click(radio_fourth_xpath, driver)
-
-                    # Hogyan értékeled a várakozási időt?
-                    radio_fifth_xpath = '//*[@id="12"]/div[5]/div[1]/div[2]/span'
-                    __select_and_click(radio_fifth_xpath, driver)
-
-                    # Hogyan értékeled az általad vásárolt termékek minőségét?
-                    radio_sixth_xpath = '//*[@id="14"]/div[5]/div[1]/div[2]/span'
-                    __select_and_click(radio_sixth_xpath, driver)
-
-                    # Tapasztaltál bármilyen problémát a látogatásod alatt?
-                    radio_seventh_xpath = '//*[@id="56"]/div[5]/div[2]/div[2]/span'
-                    __select_and_click(radio_seventh_xpath, driver)
-
-                    # A mostani élményed alapján mennyire valószínű, hogy a következő 30 napban visszatérsz ebbe a McDonald's étterembe?
-                    radio_eighth_xpath = '//*[@id="58"]/div[5]/div[1]/div[2]/span'
-                    __select_and_click(radio_eighth_xpath, driver)
-
-                    # A mostani élményed alapján mennyire valószínű, hogy ajánlani fogod ezt az éttermet egy barátnak vagy családtagnak?
-                    radio_ninth_xpath = '//*[@id="35"]/div[5]/div[1]/div[2]/span'
-                    __select_and_click(radio_ninth_xpath, driver)
-
-
-                    # Nemed?
-                    genders = ['//*[@id="22"]/div[5]/div[1]/div[2]/span', '//*[@id="22"]/div[5]/div[2]/div[2]/span']
-
-                    radio_tenth_xpath = random.choice(genders)
-                    __select_and_click(radio_tenth_xpath, driver)
-
-                    # Életkorod?
-                    ages = ['//*[@id="23"]/div[5]/div[1]/div[2]/span', '//*[@id="23"]/div[5]/div[2]/div[2]/span',
-                            '//*[@id="23"]/div[5]/div[3]/div[2]/span', '//*[@id="23"]/div[5]/div[4]/div[2]/span',
-                            '//*[@id="23"]/div[5]/div[5]/div[2]/span', '//*[@id="23"]/div[5]/div[6]/div[2]/span']
-
-                    radio_eleventh_xpath = random.choice(ages)
-                    __select_and_click(radio_eleventh_xpath, driver)
-
-                    # Milyen gyakran jársz McDonald's étterembe
-                    frequency = ['//*[@id="24"]/div[5]/div[1]/div[2]/span', '//*[@id="24"]/div[5]/div[2]/div[2]/span',
-                                 '//*[@id="24"]/div[5]/div[3]/div[2]/span', '//*[@id="24"]/div[5]/div[4]/div[2]/span',
-                                 '//*[@id="24"]/div[5]/div[5]/div[2]/span', '//*[@id="24"]/div[5]/div[6]/div[2]/span']
-                    radio_twelfth_xpath = random.choice(frequency)
-                    __select_and_click(radio_twelfth_xpath, driver)
-
-                    # Wow! Nagyon örülünk, hogy éttermünkben ilyen kellemes élményt tudtunk szerezni Neked! Kinek, vagy minek köszönhető ez?
-                    with open("data/ratings.txt", "r") as file:
-                        ratings = file.readlines()
-
-                    popup_text = random.choice(ratings)
-                    text_xpath = '//*[@id="21"]/div[5]/div/input'
-                    __write_into_textfield(text_xpath, driver, popup_text)
-
-                    #Beküldés
-                    submit = driver.find_element(By.XPATH, '//*[@id="submit-wrapper"]/div[3]')
-                    submit.click()
-
-
-
-                    #Close window
-                    time.sleep(8)
-                    driver.close()
-                    driver.quit()
-                    __delete_codeline(selected_list)
-                    successful_upload_number += 1
-                    print(f"Sikeres kitöltések száma: {successful_upload_number}")
-
-            else:
-                __delete_codeline(selected_list)
-                print("Hibás kód!... Kód törölve!")
-                selected_list = __select_options(selected_type)
-
-
-
-
-
-
+    sys.exit(app.exec())
