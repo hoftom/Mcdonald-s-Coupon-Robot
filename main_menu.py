@@ -1,5 +1,5 @@
 from PyQt6 import QtCore, QtGui, QtWidgets
-import backend
+import main_backend
 
 
 class UiForm(object):
@@ -55,7 +55,7 @@ class UiForm(object):
 
     def button_clicked(self):
         Form.hide()
-        backend.run_program(self.comboBox.currentText(), self.spinBox.value())
+        main_backend.run_program(self.comboBox.currentText(), self.spinBox.value())
         Form.show()
 
 

@@ -1,21 +1,19 @@
 from selenium import webdriver
+from selenium.common import ElementClickInterceptedException
+from selenium.webdriver import Keys, ActionChains
 from selenium.webdriver.common.by import By
 import time, random
 
 
 def __select_and_click(xpath, driver):
-    scroll_distance = 500
+    scroll_distance = 400
     button = driver.find_element(By.XPATH, xpath)
     button.click()
     driver.execute_script(f"window.scrollBy(0, {scroll_distance});")
 
-
-
 def __write_into_textfield(xpath, driver, string):
     textfield = driver.find_element(By.XPATH, xpath)
-    textfield.clear()
     textfield.send_keys(string)
-
 
 def __normalize_code(string):
     result = '-'.join([string[i:i + 4] for i in range(0, len(string), 4)]).upper()
@@ -31,6 +29,7 @@ def __select_options(selected_type):
     else:
         with open('data/lobby_codes.txt', 'r') as file:
             load_data = file.readlines()
+    print("Sikeres adatbetöltés, kiválasztott típus: " + selected_type)
     return load_data
 
 
@@ -41,23 +40,22 @@ def __delete_codeline(selected_list):
                 file.writelines(selected_list[index + 1])
 
 
-
-
-def run_program(selected_type, amount):
-
+def run_program(selected_type, asked_amount):
     selected_list = __select_options(selected_type)
-    i = 0
-    print(amount)
+    successful_upload_number = 0
+    print(f"Megadott programlefutási érték: {asked_amount}")
 
 
     for row in selected_list:
-        if i != amount:
+        if successful_upload_number != asked_amount:
             if row != "\n":
+
                 # Open browser and Get webpage
                 webpage = "https://mcdonalds.fast-insight.com/voc/hu/hu"
                 driver = webdriver.Chrome()
                 driver.get(webpage)
                 initial_page_source = driver.page_source
+                driver.maximize_window()
 
                 # Select Delivery FALSE
                 radio_delivery_xpath = '//*[@id="delivery_mo"]'
@@ -68,6 +66,7 @@ def run_program(selected_type, amount):
                 code_xpath = '//*[@id="receiptCode"]'
                 __write_into_textfield(code_xpath, driver, code)
 
+                print(f"Aktuális kód: {code}")
 
                 # Click to continue
                 button_xpath = '//*[@id="welcomeMessage"]/div[5]/button'
@@ -119,13 +118,6 @@ def run_program(selected_type, amount):
                     radio_ninth_xpath = '//*[@id="35"]/div[5]/div[1]/div[2]/span'
                     __select_and_click(radio_ninth_xpath, driver)
 
-                    # Wow! Nagyon örülünk, hogy éttermünkben ilyen kellemes élményt tudtunk szerezni Neked! Kinek, vagy minek köszönhető ez?
-                    with open("data/ratings.txt", "r") as file:
-                        ratings = file.readlines()
-
-                    popup_text = random.choice(ratings)
-                    text_popup_xpath = '//*[@id="21"]/div[5]/div/input'
-                    __write_into_textfield(text_popup_xpath, driver, popup_text)
 
                     # Nemed?
                     genders = ['//*[@id="22"]/div[5]/div[1]/div[2]/span', '//*[@id="22"]/div[5]/div[2]/div[2]/span']
@@ -148,22 +140,33 @@ def run_program(selected_type, amount):
                     radio_twelfth_xpath = random.choice(frequency)
                     __select_and_click(radio_twelfth_xpath, driver)
 
-                    # Send template
-                    button_submit_xpath = '//*[@id="submit-wrapper"]/div[3]/button/span'
-                    button = driver.find_element(By.XPATH, button_submit_xpath)
-                    button.click()
+                    # Wow! Nagyon örülünk, hogy éttermünkben ilyen kellemes élményt tudtunk szerezni Neked! Kinek, vagy minek köszönhető ez?
+                    with open("data/ratings.txt", "r") as file:
+                        ratings = file.readlines()
+
+                    popup_text = random.choice(ratings)
+                    text_xpath = '//*[@id="21"]/div[5]/div/input'
+                    __write_into_textfield(text_xpath, driver, popup_text)
+
+                    #Beküldés
+                    submit = driver.find_element(By.XPATH, '//*[@id="submit-wrapper"]/div[3]')
+                    submit.click()
+
+
 
                     #Close window
-
-                    time.sleep(5)
+                    time.sleep(8)
                     driver.close()
+                    driver.quit()
                     __delete_codeline(selected_list)
-                    i += 1
-                    print(i)
+                    successful_upload_number += 1
+                    print(f"Sikeres kitöltések száma: {successful_upload_number}")
 
             else:
                 __delete_codeline(selected_list)
+                print("Hibás kód!... Kód törölve!")
                 selected_list = __select_options(selected_type)
+
 
 
 
