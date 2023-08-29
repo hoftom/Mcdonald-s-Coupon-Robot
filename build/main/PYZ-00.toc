@@ -183,6 +183,10 @@
   ('attr.validators',
    'C:\\Users\\hoffm\\AppData\\Local\\Programs\\Python\\Python311\\Lib\\site-packages\\attr\\validators.py',
    'PYMODULE'),
+  ('backend',
+   "C:\\Users\\hoffm\\OneDrive\\Asztali gép\\projects\\Python\\Mcdonald's "
+   'Coupon Autoamter\\backend.py',
+   'PYMODULE'),
   ('base64',
    'C:\\Users\\hoffm\\AppData\\Local\\Programs\\Python\\Python311\\Lib\\base64.py',
    'PYMODULE'),

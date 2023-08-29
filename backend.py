@@ -1,13 +1,14 @@
-import random, time
+import random, time, os
 from playwright.sync_api import sync_playwright
 
+data_path = r"./data"
 
 def __select_options(selected_type):
     if selected_type == "Drive":
-        with open('data/drive_codes.txt', 'r') as file:
+        with open(f'{data_path}/drive_codes.txt', 'r') as file:
             load_data = file.readlines()
     else:
-        with open('data/lobby_codes.txt', 'r') as file:
+        with open(f'{data_path}/lobby_codes.txt', 'r') as file:
             load_data = file.readlines()
     print("Sikeres adatbetöltés, kiválasztott típus: " + selected_type)
     return load_data
@@ -37,7 +38,7 @@ def run_program(selected_type, asked_amount):
 
                 # Open browser and Get webpage
                 with sync_playwright() as p:
-                    browser = p.chromium.launch(headless=False)
+                    browser = p.chromium.launch(headless=False,channel="msedge")
                     page = browser.new_page()
 
                     initial_url = "https://mcdonalds.fast-insight.com/voc/hu/hu"

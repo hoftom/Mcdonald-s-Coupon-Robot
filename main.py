@@ -41,7 +41,6 @@ class MainForm(object):
 
         #Action
         self.pushButton.clicked.connect(self.button_clicked)
-
         self.retranslate_ui(Form)
         QtCore.QMetaObject.connectSlotsByName(Form)
 
@@ -57,7 +56,7 @@ class MainForm(object):
 
     def button_clicked(self):
         Form.hide()
-        backend(self.comboBox.currentText(), self.spinBox.value())
+        backend.run_program(self.comboBox.currentText(), self.spinBox.value())
         Form.show()
 
 
