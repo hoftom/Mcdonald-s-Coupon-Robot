@@ -148,7 +148,7 @@ def run_program(selected_type, asked_amount):
                         # Delete the wrong code
                         __delete_codeline(selected_list)
                         selected_list = __select_options(selected_type)
-                        print("Hibás kód! Ok: Korábban már kitöltött/hibásan bevitt")
+                        print("Hibás kód! Korábban már kitöltött/hibásan bevitt")
                         browser.close()
             else:
                 __delete_codeline(selected_list)
